@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="ordenes-service" />
+        <module name="administracion-service" />
+        <module name="notificaciones-service" />
+        <module name="microservice-config" />
+        <module name="accesibilidad-service" />
+        <module name="auditoria-service" />
+        <module name="usuarios-service" />
+        <module name="microservicio-eureka" />
+        <module name="turnos-service" />
+        <module name="microservicio-gateway" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="accesibilidad-service" options="-parameters" />
+      <module name="administracion-service" options="-parameters" />
+      <module name="auditoria-service" options="-parameters" />
+      <module name="microservice-config" options="-parameters" />
+      <module name="microservicio-eureka" options="-parameters" />
+      <module name="microservicio-gateway" options="-parameters" />
+      <module name="notificaciones-service" options="-parameters" />
+      <module name="ordenes-service" options="-parameters" />
+      <module name="turnos-service" options="-parameters" />
+      <module name="usuarios-service" options="-parameters" />
+    </option>
+  </component>
+</project>
