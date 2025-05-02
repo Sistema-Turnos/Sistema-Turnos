@@ -3,19 +3,36 @@ server:
 
 spring:
   application:
-    name: msvc-eureka
+    name: discovery-server  # Nombre más descriptivo
+
   config:
-    import: optional:configserver:http://localhost:8888
+    import: "optional:configserver:http://localhost:8888"
 
 eureka:
   instance:
     hostname: localhost
+    appname: discovery-server  # Nombre consistente
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 30  # Intervalo de heartbeat esperado
+    lease-expiration-duration-in-seconds: 90  # Tiempo para marcar como down
+
   client:
     register-with-eureka: false
     fetch-registry: false
-    server-url:
-      defaultZone: http://localhost:${server.port}/eureka/
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 
+  server:
+    enable-self-preservation: true  # Protección contra falsos positivos
+    renewal-percent-threshold: 0.85  # Umbral para autopreservación
+    eviction-interval-timer-in-ms: 60000  # Intervalo de limpieza (1 min)
+    response-cache-update-interval-ms: 30000  # Actualización de caché
 
-
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics  # Endpoints de monitoreo
+  endpoint:
+    health:
+      show-details: always
