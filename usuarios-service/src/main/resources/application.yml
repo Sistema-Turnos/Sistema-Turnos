@@ -17,7 +17,7 @@ spring:
       enabled: true  # Habilita la configuración remota
       fail-fast: false  # No fallar si el Config Server no está disponible
   
-  # Configuración para MySQL en Docker
+  # configuration para MySQL en Docker
   datasource:
     url: jdbc:mysql://localhost:3306/db_mysql_main?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true
     username: usuario_app
@@ -42,7 +42,7 @@ spring:
         jdbc:
           time_zone: UTC
 
-# Configuración de Eureka Client
+# configuration de Eureka Client
 eureka:
   client:
     service-url:
@@ -64,7 +64,7 @@ eureka:
       zone: primary  # Metadatos para routing
       version: 1.0.0
 
-# Configuración de Actuator (endpoints de monitoreo)
+# configuration de Actuator (endpoints de monitoreo)
 management:
   endpoints:
     web:
