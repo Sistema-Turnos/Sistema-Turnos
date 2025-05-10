@@ -1,6 +1,8 @@
 version: '3.8'
 
 services:
+
+  # 🐬 MySQL para usuarios-service
   mysql_db:
     image: mysql:8.0
     container_name: mysql_Sistema_Turnos
@@ -16,6 +18,46 @@ services:
       - mysql_data:/var/lib/mysql
     restart: unless-stopped
 
+  # 🐘 PostgreSQL para ordenes-service
+  postgres_ordenes:
+    image: postgres:15
+    container_name: postgres_ordenes_service
+    environment:
+      POSTGRES_DB: ordenes_db
+      POSTGRES_USER: ordenes_user
+      POSTGRES_PASSWORD: ordenes_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_ordenes:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # 🌐 Eureka (descubrimiento de servicios)
+  eureka-service:
+    build:
+      context: ./microservicio-eureka
+    container_name: eureka_service
+    ports:
+      - "8761:8761"
+    restart: unless-stopped
+
+  # 📦 Microservicio ordenes-service
+  ordenes-service:
+    build:
+      context: .
+      dockerfile: ordenes-service/Dockerfile
+    container_name: ordenes_service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres_ordenes
+      - eureka-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_ordenes:5432/ordenes_db
+      SPRING_DATASOURCE_USERNAME: ordenes_user
+      SPRING_DATASOURCE_PASSWORD: ordenes_pass
+      SPRING_PROFILES_ACTIVE: default
+
 volumes:
   mysql_data:
-
+  pgdata_ordenes:

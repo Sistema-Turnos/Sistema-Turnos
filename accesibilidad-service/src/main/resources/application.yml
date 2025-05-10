@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/accesibilidaddb
     username: postgres
-    password: tu_contraseña_aqui
+    password: tu_contraseï¿½a_aqui
     driver-class-name: org.postgresql.Driver
 
   jpa:

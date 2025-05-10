@@ -6,9 +6,9 @@ spring:
     name: ordenes-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ordenesdb
-    username: postgres
-    password: tu_contraseña_aqui
+    url: jdbc:postgresql://postgres_ordenes:5432/ordenes_db
+    username: ordenes_user
+    password: ordenes_pass
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,9 +18,10 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   config:
-    import: optional:configserver:http://localhost:8888
+    import: "optional:configserver:http://localhost:8888"
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-service:8761/eureka
+

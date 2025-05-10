@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/notificacionesdb
     username: postgres
-    password: tu_contraseña_aqui
+    password: tu_contraseï¿½a_aqui
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -24,7 +24,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: tu_email@gmail.com
-    password: tu_contraseña_app
+    password: tu_contraseï¿½a_app
     properties:
       mail:
         smtp:
