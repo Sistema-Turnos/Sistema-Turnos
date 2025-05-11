@@ -17,6 +17,8 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     restart: unless-stopped
+    networks:
+      - micro-net
 
   # 🐘 PostgreSQL para ordenes-service
   postgres_ordenes:
@@ -31,17 +33,68 @@ services:
     volumes:
       - pgdata_ordenes:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - micro-net
 
-  # 🌐 Eureka (descubrimiento de servicios)
+  # 🐘 PostgreSQL para administracion-service
+  postgres_administracion:
+    image: postgres:15
+    container_name: postgres_administracion_service
+    environment:
+      POSTGRES_DB: administraciondb
+      POSTGRES_USER: admin_user
+      POSTGRES_PASSWORD: admin_pass
+    ports:
+      - "5433:5432"  # para no pisar el puerto 5432
+    volumes:
+      - pgdata_admin:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - micro-net
+
+  # 🌐 Eureka
   eureka-service:
     build:
-      context: ./microservicio-eureka
+      context: .
+      dockerfile: microservicio-eureka/Dockerfile
     container_name: eureka_service
     ports:
       - "8761:8761"
     restart: unless-stopped
+    networks:
+      - micro-net
 
-  # 📦 Microservicio ordenes-service
+  # ⚙️ Config Server
+  microservice-config:
+    build:
+      context: .
+      dockerfile: microservice-config/Dockerfile
+    container_name: config_service
+    ports:
+      - "8888:8888"
+    restart: unless-stopped
+    networks:
+      - micro-net
+
+  # 🧾 Servicio de administración
+  administracion-service:
+    build:
+      context: .
+      dockerfile: administracion-service/Dockerfile
+    container_name: administracion_service
+    ports:
+      - "8080:8080"
+    environment:
+      - CONFIG_SERVER_URL=http://microservice-config:8888
+    depends_on:
+      - microservice-config
+      - eureka-service
+      - postgres_administracion
+    restart: unless-stopped
+    networks:
+      - micro-net
+
+  # 📦 Servicio de órdenes
   ordenes-service:
     build:
       context: .
@@ -57,7 +110,14 @@ services:
       SPRING_DATASOURCE_USERNAME: ordenes_user
       SPRING_DATASOURCE_PASSWORD: ordenes_pass
       SPRING_PROFILES_ACTIVE: default
+    restart: unless-stopped
+    networks:
+      - micro-net
 
 volumes:
   mysql_data:
   pgdata_ordenes:
+  pgdata_admin:
+
+networks:
+  micro-net:

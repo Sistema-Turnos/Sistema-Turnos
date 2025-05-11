@@ -1,25 +1,18 @@
-# Server configuration
 server:
-  port: 8888  # Config server will run on port 8888
+  port: 8888
 
-# Spring application configuration
 spring:
   application:
-    name: config-server  # Service name for registry/discovery
+    name: config-server
   cloud:
     config:
       server:
         git:
-          # Git repository containing the configuration files
-          uri: https://github.com/Gonza1290/Config-Server---Sistema-Turnos.git
-          # Clone the repository when the server starts (recommended for production)
+          uri: https://github.com/Sistema-Turnos/Config-Server---Sistema-Turnos.git
           clone-on-start: true
-          # Default branch to use (since your repo uses 'master' instead of 'main')
           default-label: master
 
-# Eureka client configuration for service registration
 eureka:
   client:
     service-url:
-      # Eureka server location for service registration/discovery
       defaultZone: http://localhost:8761/eureka/
