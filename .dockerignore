@@ -1,0 +1,12 @@
+.git
+.gitignore
+target/
+*.log
+*.iml
+.idea/
+*.class
+*.jar
+*.db
+*.env
+.vscode/
+node_modules/
