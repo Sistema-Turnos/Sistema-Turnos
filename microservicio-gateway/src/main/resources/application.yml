@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: api-gateway
+
+  config:
+    import: configserver:http://microservice-config:8888
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      default-filters:
+        - TokenRelay
+    #      routes:
+    #        - id: product-microservice
+    #          uri: lb://PRODUCT-MICROSERVICE
+    #          predicates:
+    #            - Path=/api/products/**, /api/categories/**
+    #        - id: booking-microservice
+    #          uri: lb://BOOKING-MICROSERVICE
+    #          predicates:
+    #            - Path=/api/booking/**
+    loadbalancer:
+      ribbon:
+        enabled: false
+
+eureka:
+  instance:
+    instance-id: "${spring.application.name}:${random.uuid}"
+  client:
+    service-url:
+      defaultZone: http://eureka-service:8761/eureka/
+
+#HEALTH CHECK
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics  # Endpoints de monitoreo
+  endpoint:
+    health:
+      show-details: always

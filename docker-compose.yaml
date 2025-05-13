@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-
   # 🐬 MySQL para usuarios-service
   mysql_db:
     image: mysql:8.0
@@ -45,21 +44,9 @@ services:
       POSTGRES_USER: admin_user
       POSTGRES_PASSWORD: admin_pass
     ports:
-      - "5433:5432"  # para no pisar el puerto 5432
+      - "5433:5432"
     volumes:
       - pgdata_admin:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks:
-      - micro-net
-
-  # 🌐 Eureka
-  eureka-service:
-    build:
-      context: .
-      dockerfile: microservicio-eureka/Dockerfile
-    container_name: eureka_service
-    ports:
-      - "8761:8761"
     restart: unless-stopped
     networks:
       - micro-net
@@ -75,6 +62,52 @@ services:
     restart: unless-stopped
     networks:
       - micro-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Eureka
+  eureka-service:
+    build:
+      context: .
+      dockerfile: microservicio-eureka/Dockerfile
+    container_name: eureka_service
+    ports:
+      - "8761:8761"
+    depends_on:
+      microservice-config:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - micro-net
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: microservicio-gateway/Dockerfile
+    container_name: api_gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      microservice-config:
+        condition: service_healthy
+      eureka-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - micro-net
 
   # 🧾 Servicio de administración
   administracion-service:
@@ -83,7 +116,7 @@ services:
       dockerfile: administracion-service/Dockerfile
     container_name: administracion_service
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
       - CONFIG_SERVER_URL=http://microservice-config:8888
     depends_on:
@@ -102,14 +135,27 @@ services:
     container_name: ordenes_service
     ports:
       - "8083:8083"
-    depends_on:
-      - postgres_ordenes
-      - eureka-service
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_ordenes:5432/ordenes_db
       SPRING_DATASOURCE_USERNAME: ordenes_user
       SPRING_DATASOURCE_PASSWORD: ordenes_pass
       SPRING_PROFILES_ACTIVE: default
+    restart: unless-stopped
+    networks:
+      - micro-net
+
+  # Servicio de usuarios
+  usuarios-service:
+    build:
+      context: .
+      dockerfile: usuarios-service/Dockerfile
+    container_name: usuarios_service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - microservice-config
+      - eureka-service
+      - mysql_db
     restart: unless-stopped
     networks:
       - micro-net

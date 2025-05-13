@@ -1,29 +1,78 @@
+# Server configuration
 server:
-  port: 8082
+  port: 0  # Asigna un puerto aleatorio disponible (útil para múltiples instancias)
 
+# Spring application configuration
 spring:
   application:
-    name: turnos-service
+    name: turnos-service  # Nombre del servicio para registro en Eureka
 
+  config:
+    import: "optional:configserver:http://localhost:8888"
+
+  # Configuración de Spring Cloud Config Client
+  cloud:
+    config:
+      uri: http://localhost:8888  # URL del Config Server
+      enabled: true  # Habilita la configuración remota
+      fail-fast: false  # No fallar si el Config Server no está disponible
+  
+  # configuration para MySQL en Docker
   datasource:
-    url: jdbc:mysql://mysql_db:3306/db_mysql_main_microservice?useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/db_mysql_main?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true
     username: usuario_app
     password: password_app
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 2000000
+      connection-timeout: 30000
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+      ddl-auto: update  # Actualiza el esquema automáticamente
+    show-sql: true      # Muestra SQL en logs (útil para desarrollo)
+    database-platform: org.hibernate.dialect.MySQLDialect
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
 
-  config:
-    import: optional:configserver:http://localhost:8888
-
+# configuration de Eureka Client
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka  # URL del servidor Eureka
+    register-with-eureka: true  # Registra este servicio en Eureka
+    fetch-registry: true  # Descarga el registro de servicios de Eureka
+    healthcheck:
+      enabled: true  # Habilita health checks para Eureka
+  
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}  # ID único para la instancia
+    appname: ${spring.application.name}
+    hostname: ${HOSTNAME:localhost}
+    prefer-ip-address: true  # Usa dirección IP en lugar de hostname
+    ip-address: ${IP_ADDRESS:127.0.0.1}
+    lease-renewal-interval-in-seconds: 30  # Frecuencia de heartbeat
+    lease-expiration-duration-in-seconds: 90  # Tiempo para marcar como down
+    metadata-map:
+      zone: primary  # Metadatos para routing
+      version: 1.0.0
+
+# configuration de Actuator (endpoints de monitoreo)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics  # Endpoints expuestos
+  endpoint:
+    health:
+      show-details: always  # Muestra detalles completos del health check
+    info:
+      env:
+        enabled: true  # Habilita información de entorno
